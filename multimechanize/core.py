@@ -118,5 +118,5 @@ class Agent(threading.Thread):
 
             epoch = time.mktime(time.localtime())
 
-            fields = (elapsed, epoch, self.user_group_name, scriptrun_time, error, trans.custom_timers)
+            fields = (elapsed, epoch, self.user_group_name, scriptrun_time, error, trans.custom_timers, getattr(trans, 'custom_fields', {}))
             self.queue.put(fields)
