@@ -12,7 +12,7 @@ from collections import defaultdict
 import graph
 import reportwriter
 import reportwriterxml
-
+import re
 
 
 def output_results(results_dir, results_file, run_time, rampup, ts_interval, user_group_configs=None, xml_reports=False):
@@ -261,7 +261,7 @@ class Results(object):
         f = open(self.results_file_name, 'rb')
         resp_stats_list = []
         for line in f:
-            fields = line.strip().split(',')
+            fields = line.strip().split(',', 6)
 
             request_num = int(fields[0])
             elapsed_time = float(fields[1])
@@ -272,8 +272,10 @@ class Results(object):
 
             self.uniq_user_group_names.add(user_group_name)
 
+
             custom_timers = {}
-            timers_string = ''.join(fields[7:]).replace('{', '').replace('}', '')
+            custom_fields_string, timers_string = re.match("(.*\\{.*?\\}.*),(.*)", fields[6]).groups()
+            timers_string = timers_string.replace("{", "").replace("}", "")
             splat = timers_string.split("'")[1:]
             timers = []
             vals = []
