@@ -28,10 +28,12 @@ xml_report = off
 
 [user_group-1]
 threads = 3
+processes = 4
 script = %s
 
 [user_group-2]
 threads = 3
+processes = 2
 script = %s
 
 """ % (SCRIPT_NAME, SCRIPT_NAME)

@@ -88,12 +88,14 @@ def run_test(project_name, cmd_opts, remote_starter=None):
     script_prefix = os.path.join(cmd_opts.projects_dir, project_name, "test_scripts")
     script_prefix = os.path.normpath(script_prefix)
 
-    user_groups = []
-    for i, ug_config in enumerate(user_group_configs):
+    user_groups, process_num = [], 0
+    for ug_config in user_group_configs:
         script_file = os.path.join(script_prefix, ug_config.script_file)
-        ug = core.UserGroup(queue, i, ug_config.name, ug_config.num_threads,
-                            script_file, run_time, rampup)
-        user_groups.append(ug)
+        for _ in range(ug_config.num_processes):
+            ug = core.UserGroup(queue, process_num, ug_config.name, ug_config.num_threads,
+                                script_file, run_time, rampup)
+            user_groups.append(ug)
+            process_num += 1
     for user_group in user_groups:
         user_group.start()
 
@@ -103,8 +105,9 @@ def run_test(project_name, cmd_opts, remote_starter=None):
         for user_group in user_groups:
             user_group.join()
     else:
-        print '\n  user_groups:  %i' % len(user_groups)
-        print '  threads: %i\n' % (ug_config.num_threads * len(user_groups))
+        print '\n  user_groups:  %i' % len(user_group_configs)
+        print '  processes: %i' % sum(g.num_processes for g in user_group_configs)
+        print '  threads: %i\n' % sum(g.num_threads * g.num_processes for g in user_group_configs)
 
         if progress_bar:
             p = progressbar.ProgressBar(run_time)
@@ -216,8 +219,12 @@ def configure(project_name, cmd_opts, config_file=None):
         else:
             threads = config.getint(section, 'threads')
             script = config.get(section, 'script')
+            try:
+                processes = config.getint(section, 'processes')
+            except ConfigParser.NoOptionError:
+                processes = 1
             user_group_name = section
-            ug_config = UserGroupConfig(threads, user_group_name, script)
+            ug_config = UserGroupConfig(processes, threads, user_group_name, script)
             user_group_configs.append(ug_config)
 
     return (run_time, rampup, results_ts_interval, console_logging, progress_bar, results_database, post_run_script, xml_report, user_group_configs)
@@ -225,7 +232,8 @@ def configure(project_name, cmd_opts, config_file=None):
 
 
 class UserGroupConfig(object):
-    def __init__(self, num_threads, name, script_file):
+    def __init__(self, num_processes, num_threads, name, script_file):
+        self.num_processes = num_processes
         self.num_threads = num_threads
         self.name = name
         self.script_file = script_file

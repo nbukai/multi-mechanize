@@ -46,10 +46,10 @@ def output_results(results_dir, results_file, run_time, rampup, ts_interval, use
     if user_group_configs:
         report.write_line('<b>workload configuration:</b><br /><br />')
         report.write_line('<table>')
-        report.write_line('<tr><th>group name</th><th>threads</th><th>script name</th></tr>')
+        report.write_line('<tr><th>group name</th><th>processes</th><th>threads</th><th>script name</th></tr>')
         for user_group_config in user_group_configs:
-            report.write_line('<tr><td>%s</td><td>%d</td><td>%s</td></tr>' %
-                (user_group_config.name, user_group_config.num_threads, user_group_config.script_file))
+            report.write_line('<tr><td>%s</td><td>%d</td><td>%d</td><td>%s</td></tr>' %
+                (user_group_config.name, user_group_config.num_processes, user_group_config.num_threads, user_group_config.script_file))
         report.write_line('</table>')
     report.write_line('</div>')
 

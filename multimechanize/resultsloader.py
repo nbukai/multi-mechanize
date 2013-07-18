@@ -54,17 +54,19 @@ class UserGroupConfig(Base):
     id = Column (Integer, nullable=False, primary_key=True)
     mechanize_global_configs_id = Column(Integer, ForeignKey('mechanize_global_configs.id'), nullable=False)
     user_group = Column(String(50), nullable=False)
+    processes = Column(Integer, nullable=False)
     threads = Column(Integer, nullable=False)
     script = Column(String(50), nullable=False)
 
-    def __init__(self, user_group=None, threads=None, script=None):
+    def __init__(self, user_group=None, processes=None, threads=None, script=None):
         self.user_group = str(user_group)
+        self.processes = int(processes)
         self.threads = int(threads)
         self.script = str(script)
 
     def __repr__(self):
-        return "<UserGroupConfig('%s','%s','%s')>" % (
-                self.user_group, self.threads, self.script)
+        return "<UserGroupConfig('%s','%i', '%i','%s')>" % (
+                self.user_group, self.processes, self.threads, self.script)
 
 class ResultRow(Base):
     """class representing a multi-mechanize results.csv row"""
@@ -157,7 +159,7 @@ def load_results_database(project_name, run_localtime, results_dir,
 
     for i, ug_config in enumerate(user_group_configs):
         user_group_config = UserGroupConfig(ug_config.name,
-                ug_config.num_threads, ug_config.script_file)
+                ug_config.num_processes, ug_config.num_threads, ug_config.script_file)
         global_config.user_group_configs.append(user_group_config)
 
     for line in fileinput.input([results_file]):
