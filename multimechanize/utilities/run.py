@@ -93,7 +93,7 @@ def run_test(project_name, cmd_opts, remote_starter=None):
         script_file = os.path.join(script_prefix, ug_config.script_file)
         for _ in range(ug_config.num_processes):
             ug = core.UserGroup(queue, process_num, ug_config.name, ug_config.num_threads,
-                                script_file, run_time, rampup)
+                                script_file, run_time, rampup, ug_config)
             user_groups.append(ug)
             process_num += 1
     for user_group in user_groups:
@@ -224,19 +224,23 @@ def configure(project_name, cmd_opts, config_file=None):
             except ConfigParser.NoOptionError:
                 processes = 1
             user_group_name = section
-            ug_config = UserGroupConfig(processes, threads, user_group_name, script)
+            all_items = dict(config.items(section))
+
+            ug_config = UserGroupConfig(processes, threads, user_group_name, script, all_items)
             user_group_configs.append(ug_config)
+
 
     return (run_time, rampup, results_ts_interval, console_logging, progress_bar, results_database, post_run_script, xml_report, user_group_configs)
 
 
 
 class UserGroupConfig(object):
-    def __init__(self, num_processes, num_threads, name, script_file):
+    def __init__(self, num_processes, num_threads, name, script_file, all_items):
         self.num_processes = num_processes
         self.num_threads = num_threads
         self.name = name
         self.script_file = script_file
+        self.all_items = all_items
 
 
 
