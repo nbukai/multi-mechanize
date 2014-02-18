@@ -47,6 +47,7 @@ def main():
     parser.add_option('-b', '--bind-addr', dest='bind_addr', help='rpc bind address', default='localhost')
     parser.add_option('-d', '--directory', dest='projects_dir', help='directory containing project folder', default='.')
     parser.add_option('-o', '--output', dest='output_dir', help='directory to please output to')
+    parser.add_option('-c', '--configfile', dest='config_file', help='configuration file containing options (defaults to config.cfg)', default='config.cfg')
     cmd_opts, args = parser.parse_args()
 
     try:
@@ -150,7 +151,7 @@ def run_test(project_name, cmd_opts, remote_starter=None):
         print 'created: last_results.jtl\n'
 
     # copy config file to results directory
-    project_config = os.sep.join([cmd_opts.projects_dir, project_name, 'config.cfg'])
+    project_config = os.sep.join([cmd_opts.projects_dir, project_name, cmd_opts.config_file])
     saved_config = os.sep.join([output_dir, 'config.cfg'])
     shutil.copy(project_config, saved_config)
 
@@ -189,7 +190,7 @@ def configure(project_name, cmd_opts, config_file=None):
     user_group_configs = []
     config = ConfigParser.ConfigParser()
     if config_file is None:
-        config_file = '%s/%s/config.cfg' % (cmd_opts.projects_dir, project_name)
+        config_file = '%s/%s/%s' % (cmd_opts.projects_dir, project_name, cmd_opts.config_file)
     config.read(config_file)
     for section in config.sections():
         if section == 'global':
