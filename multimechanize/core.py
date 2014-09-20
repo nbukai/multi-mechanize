@@ -13,6 +13,7 @@ import os
 import sys
 import threading
 import time
+import inspect
 
 from multimechanize.script_loader import ScriptLoader
 import os.path
@@ -98,7 +99,12 @@ class Agent(threading.Thread):
 
     def run(self):
         elapsed = 0
-        trans = self.script_module.Transaction(self.user_group_config)
+        # for backward competibility, check the __init__ for number of params, before the call
+        spec = inspect.getargspec(self.script_module.Transaction.__init__)
+        if len(spec.args) == 1 and spec.varargs is None and spec.keywords is None:
+            trans = self.script_module.Transaction()        
+        else:
+            trans = self.script_module.Transaction(self.user_group_config)
         trans.custom_timers = {}
 
         # scripts have access to these vars, which can be useful for loading unique data
