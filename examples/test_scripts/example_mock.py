@@ -16,7 +16,7 @@ import time
 
 
 class Transaction(object):
-    def __init__(self):
+    def __init__(self, ug_config):
         self.custom_timers = {}
 
     def run(self):
