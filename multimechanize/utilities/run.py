@@ -97,9 +97,9 @@ def run_test(project_name, cmd_opts, remote_starter=None):
     for ug_config in user_group_configs:
         script_file = os.path.join(script_prefix, ug_config.script_file)
         for _ in range(ug_config.num_processes):
-            rampup = rampup + ug_config.rampup
+            cur_rampup = rampup + ug_config.rampup
             ug = core.UserGroup(queue, process_num, ug_config.name, ug_config.num_threads,
-                                script_file, run_time, rampup, ug_config)
+                                script_file, run_time, cur_rampup, ug_config)
             user_groups.append(ug)
             process_num += 1
     for user_group in user_groups:
@@ -229,14 +229,18 @@ def configure(project_name, cmd_opts, config_file=None):
             except ConfigParser.NoOptionError:
                 processes = 1
             try:
-                rampup = config.getint(section, 'rampup')
+                ug_rampup = config.getint(section, 'rampup')
             except ConfigParser.NoOptionError:
-                rampup = 0
+                ug_rampup = 0
+            try:
+                ug_starttime = config.getint(section, 'starttime')
+            except ConfigParser.NoOptionError:
+                ug_starttime = 0
 
             user_group_name = section
             all_items = dict(config.items(section))
 
-            ug_config = UserGroupConfig(processes, threads, user_group_name, script, all_items, rampup)
+            ug_config = UserGroupConfig(processes, threads, user_group_name, script, all_items, ug_rampup, ug_starttime)
             user_group_configs.append(ug_config)
 
     return (run_time, rampup, results_ts_interval, console_logging, progress_bar, results_database,
@@ -244,8 +248,9 @@ def configure(project_name, cmd_opts, config_file=None):
 
 
 class UserGroupConfig(object):
-    def __init__(self, num_processes, num_threads, name, script_file, all_items, rampup):
+    def __init__(self, num_processes, num_threads, name, script_file, all_items, rampup, starttime):
         self.rampup = rampup
+        self.starttime =  starttime
         self.num_processes = num_processes
         self.num_threads = num_threads
         self.name = name

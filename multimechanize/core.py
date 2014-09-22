@@ -60,6 +60,9 @@ class UserGroup(multiprocessing.Process):
         # -- ENSURE: (Re-)Import script_module in forked Process
         script_module = load_script(self.script_file)
         threads = []
+
+        # waiting for the starttime to arrive
+        time.sleep(self.user_group_config.starttime)
         for i in range(self.num_threads):
             spacing = float(self.rampup) / float(self.num_threads)
             if i > 0:
@@ -72,6 +75,7 @@ class UserGroup(multiprocessing.Process):
             agent_thread.daemon = True
             threads.append(agent_thread)
             agent_thread.start()
+
         for agent_thread in threads:
             agent_thread.join()
 
