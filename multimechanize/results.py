@@ -259,14 +259,14 @@ class Results(object):
 
 
             custom_timers = {}
-            custom_fields_string, timers_string = re.match("(.*\\{.*?\\}.*),(.*)", fields[6]).groups()
+            custom_fields_string, timers_string = re.match("(.*\\{.*?\\}.*),(.*\\{.*?\\}.*)", fields[6]).groups()
             timers_string = timers_string.replace("{", "").replace("}", "")
             splat = timers_string.split("'")[1:]
             timers = []
             vals = []
             for x in splat:
                 if ':' in x:
-                    x = float(x.replace(': ', ''))
+                    x = float(x.replace(':', '').replace(',',''))
                     vals.append(x)
                 else:
                     timers.append(x)
