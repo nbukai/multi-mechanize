@@ -13,6 +13,7 @@ import ConfigParser
 import multiprocessing
 import optparse
 import os
+import os.path
 # -- NOT-NEEDED: import Queue
 import shutil
 import subprocess
@@ -152,8 +153,12 @@ def run_test(project_name, cmd_opts, remote_starter=None):
         print 'created: last_results.jtl\n'
 
     # copy config file to results directory
-    project_config = os.sep.join([cmd_opts.projects_dir, project_name, cmd_opts.config_file])
-    saved_config = os.sep.join([output_dir, 'config.cfg'])
+    if os.path.isfile(cmd_opts.config_file):
+        project_config = cmd_opts.config_file
+        saved_config = os.sep.join([output_dir, 'config.cfg'])
+    else:
+        project_config = os.sep.join([cmd_opts.projects_dir, project_name, cmd_opts.config_file])
+        saved_config = os.sep.join([output_dir, 'config.cfg'])
     shutil.copy(project_config, saved_config)
 
     if results_database is not None:
@@ -191,8 +196,12 @@ def configure(project_name, cmd_opts, config_file=None):
     user_group_configs = []
     config = ConfigParser.ConfigParser()
     if config_file is None:
-        config_file = '%s/%s/%s' % (cmd_opts.projects_dir, project_name, cmd_opts.config_file)
+        if os.path.isfile(cmd_opts.config_file):
+            config_file = cmd_opts.config_file
+        else:
+            config_file = '%s/%s/%s' % (cmd_opts.projects_dir, project_name, cmd_opts.config_file)
     config.read(config_file)
+    print config_file
     for section in config.sections():
         if section == 'global':
             run_time = config.getint(section, 'run_time')
