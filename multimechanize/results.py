@@ -63,19 +63,28 @@ def output_results(results_dir, results_file, run_time, rampup, ts_interval, use
         trans_timer_vals.append(resp_stats.trans_time)
     graph.resp_graph_raw(trans_timer_points, 'All_Transactions_response_times.png', results_dir)
 
+    def create_summery_data(total_transactions, vals):
+        """ create the data for the summery tables/jsons """
+        return {
+            'count' : results.total_transactions,
+            'min'   : min(vals),
+            'avg'   : average(vals),
+            '80pct' : percentile(vals, 80),
+            '90pct' : percentile(vals, 90),
+            '95pct' : percentile(vals, 95),
+            'max'   :  max(vals),
+            'stdev' : standard_dev(vals),
+        }
+
+    data = create_summery_data(results.total_transactions, trans_timer_vals)
+    report.append_summery_data("ALL", data)
+
+
     report.write_line('<h3>Transaction Response Summary (secs)</h3>')
     report.write_line('<table>')
     report.write_line('<tr><th>count</th><th>min</th><th>avg</th><th>80pct</th><th>90pct</th><th>95pct</th><th>max</th><th>stdev</th></tr>')
-    report.write_line('<tr><td>%i</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td></tr>'  % (
-        results.total_transactions,
-        min(trans_timer_vals),
-        average(trans_timer_vals),
-        percentile(trans_timer_vals, 80),
-        percentile(trans_timer_vals, 90),
-        percentile(trans_timer_vals, 95),
-        max(trans_timer_vals),
-        standard_dev(trans_timer_vals),
-    ))
+    report.write_line('<tr><td>%(count)i</td><td>%(min).3f</td><td>%(avg).3f</td><td>%(80pct).3f</td><td>%(90pct).3f</td><td>%(95pct).3f</td><td>%(max).3f</td><td>%(stdev).3f</td></tr>' % data)
+
     report.write_line('</table>')
 
     # all transactions - interval details
@@ -151,19 +160,12 @@ def output_results(results_dir, results_file, run_time, rampup, ts_interval, use
         report.write_line('<h2>Custom Timer: %s</h2>' % timer_name)
 
         report.write_line('<h3>Timer Summary (secs)</h3>')
+        data = create_summery_data( len(custom_timer_vals), custom_timer_vals)
+        report.append_summery_data(timer_name, data)
 
         report.write_line('<table>')
         report.write_line('<tr><th>count</th><th>min</th><th>avg</th><th>80pct</th><th>90pct</th><th>95pct</th><th>max</th><th>stdev</th></tr>')
-        report.write_line('<tr><td>%i</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td></tr>'  % (
-            len(custom_timer_vals),
-            min(custom_timer_vals),
-            average(custom_timer_vals),
-            percentile(custom_timer_vals, 80),
-            percentile(custom_timer_vals, 90),
-            percentile(custom_timer_vals, 95),
-            max(custom_timer_vals),
-            standard_dev(custom_timer_vals)
-        ))
+        report.write_line('<tr><td>%(count)i</td><td>%(min).3f</td><td>%(avg).3f</td><td>%(80pct).3f</td><td>%(90pct).3f</td><td>%(95pct).3f</td><td>%(max).3f</td><td>%(stdev).3f</td></tr>'  % data)
         report.write_line('</table>')
 
         # custom timers - interval details
@@ -224,6 +226,7 @@ def output_results(results_dir, results_file, run_time, rampup, ts_interval, use
 
     report.write_line('<hr />')
     report.write_closing_html()
+    report.create_summery_json()
 
 
 class Results(object):

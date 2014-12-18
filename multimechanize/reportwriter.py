@@ -5,13 +5,22 @@
 #
 #  This file is part of Multi-Mechanize | Performance Test Framework
 #
-
+import json
 
 class Report(object):
     def __init__(self, results_dir):
         self.results_dir = results_dir
         self.fn = results_dir + 'results.html'
+        self.json_fn = results_dir + 'summery.json'
+        self.data = {}
         self.write_head_html()
+
+    def append_summery_data(self, timer_name, data):
+        self.data[timer_name] = data
+
+    def create_summery_json(self):
+        with open(self.json_fn, 'w') as f:
+            f.write(json.dumps(self.data, sort_keys=True, indent=4, separators=(',', ': ')))
 
     def write_line(self, line):
         with open(self.fn, 'a') as f:
@@ -96,8 +105,6 @@ class Report(object):
 </body>
 </html>
 """)
-
-
 
 
 
