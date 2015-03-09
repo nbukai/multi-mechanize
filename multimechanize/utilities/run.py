@@ -146,7 +146,7 @@ def run_test(project_name, cmd_opts, remote_starter=None):
     # all agents are done running at this point
     time.sleep(.2)  # make sure the writer queue is flushed
     print '\n\nanalyzing results...\n'
-    results.output_results(output_dir, 'results.csv', run_time, rampup, results_ts_interval, user_group_configs, xml_report)
+    total_errors = results.output_results(output_dir, 'results.csv', run_time, rampup, results_ts_interval, user_group_configs, xml_report)
     print 'created: %sresults.html\n' % output_dir
     if xml_report:
         print 'created: %sresults.jtl' % output_dir
@@ -177,7 +177,7 @@ def run_test(project_name, cmd_opts, remote_starter=None):
         remote_starter.test_running = False
         remote_starter.output_dir = output_dir
 
-    return
+    return total_errors
 
 
 def rerun_results(project_name, cmd_opts, results_dir):

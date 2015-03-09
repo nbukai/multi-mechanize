@@ -227,7 +227,7 @@ def output_results(results_dir, results_file, run_time, rampup, ts_interval, use
     report.write_line('<hr />')
     report.write_closing_html()
     report.create_summery_json()
-
+    return results.total_errors
 
 class Results(object):
     def __init__(self, results_file_name, run_time):
